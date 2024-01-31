@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -43,8 +44,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'drf_spectacular',
-    'cognito_jwt',
+    'oauth2_provider',
 ]
+
+LOCAL_APPS = [
+    "articles",
+]
+
+INSTALLED_APPS += LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -52,9 +59,21 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'cognito.middleware.CognitoAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# AWS Cognito Configuration
+COGNITO_CONFIG = {
+    # URL consists of https://{pool-name}.auth.{region}.amazoncognito.com/oauth2/token
+    # Replace it below accordingly
+    "url": "https://frontenddrfcognito77b3bdee_userpool_77b3bdee-dev.auth.ap-southeast-2.amazoncognito.com/oauth2/token",
+    "app_client_id": os.environ["AWS_APP_CLIENT_ID"],
+    "region": "ap-southeast-2",
+    "aws_user_pools_id": os.environ["AWS_USER_POOLS_ID"],
+    "aws_user_pools_web_client_id": os.environ["AWS_APP_CLIENT_ID"],
+}
 
 ROOT_URLCONF = 'api_reward.urls'
 
@@ -135,7 +154,7 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'cognito_jwt.authentication.JSONWebTokenAuthentication',
+        'cognito.authentication.CognitoAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -152,6 +171,6 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-COGNITO_USER_POOL_ID = 'your_user_pool_id'
-COGNITO_APP_CLIENT_ID = 'your_app_client_id'
-COGNITO_AWS_REGION = 'your_aws_region'
+# COGNITO_USER_POOL_ID = 'your_user_pool_id'
+# COGNITO_APP_CLIENT_ID = 'your_app_client_id'
+# COGNITO_AWS_REGION = 'your_aws_region'
